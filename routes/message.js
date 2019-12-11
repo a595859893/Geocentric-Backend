@@ -21,8 +21,8 @@ router.get('/send', async function (req, res, next) {
 
         try {
             let { results } = await mysqlUtils.queryAsync(req, {
-                sql: "INSERT INTO message (msgId,userId,loc,msg) VALUES(?,?,POINT(?,?),?)",
-                values: [msgId, userId, log, lat, msg],
+                sql: "INSERT INTO message (msgId,userId,loc,msg,sendtime) VALUES(?,?,POINT(?,?),?,?)",
+                values: [msgId, userId, log, lat, msg, new Date()],
                 timeout: 1000, // 1s
             });
             return res.json({ ok: true, code: 0 });
@@ -42,16 +42,20 @@ router.get('/send', async function (req, res, next) {
 // loc({log(float),lat(float)}):想要获取消息位置的经纬度
 // range(float):获取消息的范围
 router.get('/get', async function (req, res, next) {
-    const { userId, loc, range } = req.body;
+    const { userId, loc, range, period } = req.body;
+    if (!loc || !period) {
+        return res.json(ERROR.PARSE_FAIL)
+    }
     const { log, lat } = loc;
+    const { start, end } = period;
     try {
         let { results } = await mysqlUtils.queryAsync(req, {
-            sql: "SELECT userId,loc,msg FROM message WHERE st_distance(loc,POINT(?,?))>?",
-            values: [log, lat, range],
+            sql: "SELECT userId,loc,msg,sendtime FROM message WHERE st_distance(loc,POINT(?,?))<? AND sendtime BETWEEN ? AND ?",
+            values: [log, lat, range, start, end],
             timeout: 1000, // 1s
         });
         console.log(results);
-        let respons = { ok: true, code: 0, ...results };
+        let respons = { ok: true, code: 0, results };
         return res.json(respons);
     } catch (e) {
         return res.json(ERROR.MYSQL_FAIL);
