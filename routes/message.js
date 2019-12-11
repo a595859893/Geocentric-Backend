@@ -12,28 +12,28 @@ const ERROR = {
 // userId(string):发送的消息用户ID
 // loc({log(float),lat(float)}):发送的经纬度
 // msg(string):发送的消息文本
-router.get('/send', async function (req, res, next) {
+router.post('/send', async function (req, res, next) {
+    const { userId, loc, msg } = req.body;
+    const { log, lat } = loc;
+    
+    if (!loc || !period) {
+        return res.json(ERROR.PARSE_FAIL)
+    }
+
+    let msgId = uniqueId({ msg, userId }, 31);
+
     try {
-        const { userId, loc, msg } = req.body;
-        const { log, lat } = loc;
-
-        let msgId = uniqueId({ msg, userId }, 31);
-
-        try {
-            let { results } = await mysqlUtils.queryAsync(req, {
-                sql: "INSERT INTO message (msgId,userId,loc,msg,sendtime) VALUES(?,?,POINT(?,?),?,?)",
-                values: [msgId, userId, log, lat, msg, new Date()],
-                timeout: 1000, // 1s
-            });
-            return res.json({ ok: true, code: 0 });
-        } catch (err) {
-            console.log(err)
-            return res.json(ERROR.MYSQL_FAIL);
-        }
+        let { results } = await mysqlUtils.queryAsync(req, {
+            sql: "INSERT INTO message (msgId,userId,loc,msg,sendtime) VALUES(?,?,POINT(?,?),?,?)",
+            values: [msgId, userId, log, lat, msg, new Date()],
+            timeout: 1000, // 1s
+        });
+        return res.json({ ok: true, code: 0 });
     } catch (err) {
         console.log(err)
-        return res.json(ERROR.PARSE_FAIL);
+        return res.json(ERROR.MYSQL_FAIL);
     }
+
 });
 
 
@@ -41,7 +41,7 @@ router.get('/send', async function (req, res, next) {
 // userId(string):尝试获取消息的用户ID
 // loc({log(float),lat(float)}):想要获取消息位置的经纬度
 // range(float):获取消息的范围
-router.get('/get', async function (req, res, next) {
+router.post('/get', async function (req, res, next) {
     const { userId, loc, range, period } = req.body;
     if (!loc || !period) {
         return res.json(ERROR.PARSE_FAIL)
