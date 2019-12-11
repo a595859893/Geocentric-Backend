@@ -27,7 +27,7 @@ app.use(function (req, res, next) {
     req.mysql = pool;
     // CORS debugging
     if (DEBUG) {
-        res.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8080")
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080")
     }
     next();
 });
