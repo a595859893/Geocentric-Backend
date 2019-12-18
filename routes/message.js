@@ -15,7 +15,8 @@ const ERROR = {
 router.post('/send', async function (req, res, next) {
     const { userId, loc, msg } = req.body;
     const { log, lat } = loc;
-    
+    console.log(loc)
+    console.log(new Date())
     if (!loc) {
         return res.json(ERROR.PARSE_FAIL)
     }
@@ -46,13 +47,24 @@ router.post('/get', async function (req, res, next) {
     if (!loc || !period) {
         return res.json(ERROR.PARSE_FAIL)
     }
+
     const { log, lat } = loc;
     const { start, end } = period;
+
+    let startDate = new Date();
+    let endDate = new Date();
+    startDate.setTime(startDate.getTime() + start);
+    endDate.setTime(endDate.getTime() + end);
+
+    console.log(startDate, endDate);
+    console.log(log + " " + lat)
+
     try {
         let { results } = await mysqlUtils.queryAsync(req, {
-            sql: "SELECT userId,loc,msg,sendtime FROM message WHERE st_distance(loc,POINT(?,?))<? AND sendtime BETWEEN ? AND ?",
-            values: [log, lat, range, start, end],
-            timeout: 1000, // 1s
+            // sql: "SELECT userId,loc,msg,sendtime FROM message WHERE st_distance(loc,POINT(?,?))<? AND sendtime BETWEEN ? AND ?",
+            sql: "SELECT userId,loc,msg,sendtime FROM message WHERE st_distance(loc,POINT(?,?))<?",
+            values: [log, lat, range, startDate, endDate],
+            timeout: 100, // 0.1s
         });
         console.log(results);
         let respons = { ok: true, code: 0, results };
