@@ -16,7 +16,7 @@ router.post('/send', async function (req, res, next) {
     const { userId, loc, msg } = req.body;
     const { log, lat } = loc;
     
-    if (!loc || !period) {
+    if (!loc) {
         return res.json(ERROR.PARSE_FAIL)
     }
 

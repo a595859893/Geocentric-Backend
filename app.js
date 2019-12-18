@@ -25,6 +25,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function (req, res, next) {
     req.mysql = pool;
+    res.setHeader("Access-Control-Allow-Headers", "content-type")
+    console.log(DEBUG)
     // CORS debugging
     if (DEBUG) {
         res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080")
