@@ -10,4 +10,17 @@ function queryAsync(req, param) {
     })
 }
 
-module.exports = { queryAsync };
+function getConnection(req) {
+    const { mysql } = req;
+    return new Promise((resolve, reject) => {
+        mysql.getConnection((err, connection) => {
+            if (err) {
+                return reject(err);
+            }
+
+            return resolve(connection);
+        });
+    });
+}
+
+module.exports = { queryAsync, getConnection };

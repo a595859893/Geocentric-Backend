@@ -5,6 +5,19 @@ let seqIdx = 0;
 let seqTime = new Date().getTime();
 const ZERO_32 = new Array(32 + 1).join('0');
 
+function getToken(account, passHash, timestamp) {
+    timestamp = new Date(timestamp);
+    let md5 = crypto.createHash('sha1');
+    md5.update(account + passHash + timestamp.toString());
+    return md5.digest("hex");
+}
+
+function passwordHash(password) {
+    let md5 = crypto.createHash('sha1');
+    md5.update(password);
+    return md5.digest("hex");
+}
+
 // 根据当前时间（毫秒）以及毫秒内调用次数来生成
 function getTimeSequence() {
     let time = new Date().getTime();
@@ -36,4 +49,4 @@ function uniqueId(info, length) {
     return final
 }
 
-module.exports = { uniqueId };
+module.exports = { uniqueId, getToken, passwordHash };
