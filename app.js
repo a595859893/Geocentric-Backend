@@ -10,6 +10,7 @@ let pool = mysql.createPool(MYSQL_POOL_OPTIONS);
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const messageRouter = require('./routes/message');
+const discussRouter = require('./routes/discuss');
 
 const app = express();
 
@@ -26,19 +27,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(function (req, res, next) {
     req.mysql = pool;
     res.setHeader("Access-Control-Allow-Headers", "content-type")
-    console.log(DEBUG)
     // CORS debugging
     if (DEBUG) {
         res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080")
+    } else {
+        res.setHeader("Access-Control-Allow-Origin", "https://geo.littlehumming.cn:3001")
     }
     next();
 });
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/message', messageRouter);
+app.use('/discuss', discussRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
+    console.log("???")
     next(createError(404));
 });
 

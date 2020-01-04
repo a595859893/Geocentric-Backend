@@ -1,10 +1,15 @@
 const app = require('./app');
 const debug = require('debug')('geocentric-backend:server');
-const http = require('http');
+const https = require('https');
+const fs = require('fs')
 const { SERVER_CONFIG } = require('./config');
 
 app.set('port', SERVER_CONFIG.PORT);
-const server = http.createServer(app);
+const options = {
+    cert: fs.readFileSync('./1_geo.littlehumming.cn_bundle.crt'),
+    key: fs.readFileSync('./2_geo.littlehumming.cn.key'),
+}
+const server = https.createServer(options, app);
 server.listen(SERVER_CONFIG.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
